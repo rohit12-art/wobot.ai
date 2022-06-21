@@ -8,13 +8,18 @@ const userRegister = async (req, res) => {
   if (!firstname || !lastname || !username || !password) {
     return res.status(422).send("Please fill the form properly.");
   }
-
   try {
     const userExist = await User.findOne({ username });
     if (userExist) {
       return res.status(422).send("User already exist");
     }
-    const user = new User({ firstname, lastname, username, password });
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = new User({
+      firstname,
+      lastname,
+      username,
+      password: hashedPassword,
+    });
     await user.save();
     return res.status(201).send("User registration succesfully ");
   } catch (error) {
